@@ -1,0 +1,174 @@
+
+# Palvelinten hallinta h3
+
+
+Tämän harjoituksen suoritus aloitettiin 13-11-2018 64-bittisellä Asuksen X541S kannattavalla. Käyttöjärjestelmänä oli Xubuntu 18.04 versio.
+
+
+## c) Salt kansio githubiin ja takaisin.
+
+Ensiksi loin githubiin uuden repositoryn.
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_19-56-16.png?w=770)
+
+
+Aensin gitin.
+	
+	sudo apt install git
+
+Loin /sv/salt kansiopolun, jonne loin sijainnin githubini salt varastolle kopioimalla githubista varastoni linkin.
+
+	sudo mkdir /srv/salt
+	sudo git init
+	sudo git remote add origin https://github.com/Nikokul123/salt.git
+
+Loin salt kansioon README tiedoston, jonka työnsin gittiin.
+
+	sudoedit README.md
+	sudo git commit
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-00-57.png)
+
+
+	sudo git add .
+	sudo git commit
+	
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-03-51.png)
+
+
+	sudo git push -u origin master
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-05-36.png?w=770)
+
+
+
+Poistin /srv/salt kansiopolun.
+
+	sudo rm -r /srv
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-08-08.png?w=770)
+
+
+Loin uudestaan /srv kansion, jonne kloonasin githubini salt kansion.
+	
+	sudo mkdir /srv
+	sudo git clone https://github.com/Nikokul123/salt.git
+	
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-10-09.png?w=770)
+
+
+## d) Git log, diff ja blame.
+
+
+Lisäsin README tiedostoon rivin tekstiä ja työnsin sen githubiin. Sitten korvasin lisäämäni tekstirivin toisella lauseella ja työnsin tiedoston taas githubiin.
+
+	sudo git log
+	
+Log komento näyttää kaikki tehdyt commitit, sekä kuka ne on tehnyt ja milloin.
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-23-44.png?w=770)
+
+
+	sudo git diff
+	
+Diff komento näyttää committien väliset erovaisuudet. Vihreä väri edustaa lisättyjä elementtejä ja punainen poistettuja.
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-25-50.png)
+
+
+	sudo git blame README.md
+	
+Blame komento näyttää kellonajan, päivämäärän, committiviestin ja järjestyksen jossa commitit on tehty.
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-28-23.png)
+
+
+## e) Reset hard komento.
+
+
+Poistin README tiedoston.
+
+	sudo rm README.md
+	
+Palautin README tiedoston.
+
+	sudo git reset --hard
+	
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-33-46.png)
+
+
+
+## f) Vapaavalintainen salt-moduuli.
+
+
+Päätin asentaa Pinta nimisen piirto-ohjelman.
+
+	sudo apt install pinta
+	
+	
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_20-42-41.png?w=1540)
+
+
+Poistin Pintan purge komennolla.
+
+	sudo apt purge pinta*
+	
+Tässä vaiheessa huomasin etten ollut vielä asentanut salt-masteria ja minionia, joten tein sen.
+
+	sudo apt install sat-master salt-minion
+	
+Kopioin ip-osoitteeni talteen minionin asetustiedostoa varten.
+
+	hostname -I
+
+Käcin asettamassa minionin asetustiedostoon masterin ip:n ja minionin id:n
+
+	sudoedit /etc/salt/minion
+	
+Käynnistin minionin uudelleen ja hyväksyin avaimen.
+	
+	sudo systemctl restart salt-minion.service
+	sudo salt-key -A
+	
+Tein /srv/salt kansioon pinta.sls tiedoston, joka asentaa ohjelman.
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_21-22-00.png)
+
+
+Hyväksyin pinta.sls tiedoston minionilleni
+
+	sudo salt '*' state.apply pinta
+	
+	
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_21-24-54.png)
+
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-13_21-25-24.png?w=770)
+
+
+
+
+Lähteet:
+
+Karvinen, Tero: Oppitunnit 2006-05-18, Linux tutustuminen -kurssi (www.iki.fi/karvinen/linux_tutustuminen.html)
+
+
+
+Lisenssi:
+
+Tätä dokumenttia saa kopioida ja muokata GNU General Public License (versio 2 tai uudempi) mukaisesti. http://www.gnu.org/licenses/gpl.html.
+
+“Pohjana Tero Karvinen 2012: Linux kurssi, http://terokarvinen.com”.
+
+
+
+
