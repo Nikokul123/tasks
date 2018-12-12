@@ -1,0 +1,64 @@
+## Palvelinten hallinta h5
+
+Tämän harjoituksen suoritus aloitettiin 28-11-2018 64-bittisellä Asuksen X541S kannattavalla. Käyttöjärjestelmänä oli Xubuntu 18.04 versio.
+
+Windows koneen versiona toimi Windows 64 Home Edition.
+
+### a) Windows orjaksi Linux Herraksi
+
+
+Ensikisi Linuxilla asetin uuden avaimen valmiiksi.
+Oheiset koodinpätkät otin Teron ohjeesta http://terokarvinen.com/2018/control-windows-with-salt
+
+    wget https://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest/SALTSTACK-GPG-KEY.pub
+    sudo apt-key add SALTSTACK-GPG-KEY.pub  # New trust
+
+Asensin salt-masterin ja minionin ja testasin että minion vastaa onnistuneesti
+
+    sudo apt-get install salt-master
+    sudo apt-get install salt-minion
+    hostname -I
+    sudoedit /etc/salt/minion
+    sudo systemctl restart salt-minon
+    sudo salt-key -A
+    
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-28_17-12-10.png)
+
+Minion vastasi onnistuneesti, joten siirryin asentamaan salttia Windows koneelleni.
+Valitsin https://repo.saltstack.com/windows/ sivulta Linuxeni kanssa täsmäävän salt-version.
+
+Salt-Minion-2017.7.4-Py3-AMD64-Setup.exe
+
+Asennuksen jälkeen yritin hyväksyä uuden minioni avainta.
+
+    sudo salt-key -A
+    
+The key glob '*' does not match any unaccepted keys.
+
+Tarkistin vielä "sudo salt-key -L" komenolla mutta listassa ei näkynyt yhtään odottavaa avainta.
+Päätin uudelleenasentaa saltin Linuxilleni ja Windowsilleni ja tarkistaa että versiot sekä IP-osoitteet täsmäävät.
+Yritin taas hyväksyä uutta avainta, mutta mitään ei löytynyt.
+
+Windowsilla tutkiessani salt kandsion tiedostoja testasin avata "salt-minion-debug" tiedoston.
+Debug-modissa sain löydettyä ja hyväksyttyä Windows minionini avaimen.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-28_17-24-54.png)
+
+Minion vastasi pingiin, joten testasin pystynkö myös asentaam eri ohjelmia.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-28_17-31-45.png?w=770)
+
+MItään pakettia en siis saanut asennettua. Suljin debug-modin ja testasin asennusta ilman sitä, mutta ilman debug-modia minion ei edes vastannut. (Alimmat rivit kuvasta)
+
+Linux koneeni siis löysi Windows koneeni vain Windowsin saltin ollessa debug-modissa. Pngiä pidemmälle en siis valitettavasti päässyt.
+
+Lähteet:
+
+- Karvinen, Tero: Oppitunnit 2006-05-18, Linux tutustuminen -kurssi (www.iki.fi/karvinen/linux_tutustuminen.html)
+- http://terokarvinen.com/2018/control-windows-with-salt
+
+Lisennsi:
+
+- Tätä dokumenttia saa kopioida ja muokata GNU General Public License (versio 2 tai uudempi) mukaisesti.       http://www.gnu.org/licenses/gpl.html.
+- “Pohjana Tero Karvinen 2012: Linux kurssi, http://terokarvinen.com”.
