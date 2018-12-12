@@ -1,0 +1,125 @@
+### Palvelinten hallinta h6
+
+Tämän harjoituksen suoritus aloitettiin 05-12-2018 64-bittisellä Asuksen X541S kannattavalla. Käyttöjärjestelmänä oli Xubuntu 18.04 versio
+
+
+
+### a) LAMPIN asennus käsin.
+
+Ensikisi asensin apache2 palvelimen, sallin normaalikäyttäjän oikeudet ja loin index.html esimerkkisivuston.
+
+    sudo apt install apache2
+    mkdir public_html
+    cd public_html
+    nano index.html
+    sudo a2enmod userdir
+    sudo systemctl restart apache2
+    
+Menin localhost/~xubuntu osoitteeseen selaimella tarkistamaan, että esimerkkisivu näkyy onnistuneesti.
+
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_02-32-54.png?w=770)
+
+Sueraavaksi asensin PHP moduulin, muokkasin tarvittavaa conffaus tiedostoa ja muutin index.html tiedoston index.php tyyppiseksi.
+
+    sudo apt install libapache2-mod-php
+    cd /etc/apache2
+    grep -ri php
+    sudoedit mods-available/php7.2.conf
+    
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_02-37-04.png)
+    
+    sudo systemctl restart apache2
+    cd
+    cd public_html
+    mv index.html index.php
+    nano index.php
+
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_02-39-55.png)
+    
+SItten menin takaisin selaimella localhost/~xubuntu osoitteeseen tarkistamaan, että PHP näkyy onnistuneesti.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_02-40-20.png)
+
+Lopuksi vielä asensin MariaDB:n ja testasin sen toimivuuden luomalla tietokannan ja käyttäjän.
+
+    sudo apt install mariadb-client mariadb-server
+    sudo mariadb
+    CREATE DATABASE customers;
+    GRANT ALL ON customers.* TO customers@localhost IDENTIFIED BY 'DHASldsaij68dJDA?#3JD678!Kkj';
+    exit
+    mariadb -u customers -p
+    CREATE DATABASE cats;
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_02-49-57.png?w=770)
+
+
+### b) LAMPIN asennus saltilla.
+
+
+Loin /srv/salt/ kansiopolun sisään apache kansion jonne kopioin PHP conffaus tiedostot. Tein conffaustiedostoon väliaikaisen muutoksen jotta pystyisin löytämään tarvittavan tiedoston find-komennon avulla.
+
+    sudo mkdir /srv/salt
+    cd /srv/salt/
+    sudo mkdir apache
+    cd
+    cd /etc/apache2
+    grep -ri php
+    sudoedit mods-available/php7.2.conf
+    cd
+    find -printf "%T+ %p\n"|sort
+    cd /etc/apache2
+    sudo cp mods-available/php7.2.conf /srv/salt/apache
+    sudo cp mods-available/php7.2.load /srv/salt/apache
+   
+   
+Sitten loin /srv/salt/ polkuun page kansion, jonka sisään loin malli index.php tiedoston. 
+
+    cd ..
+    sudo mkdir page
+    cd page
+    sudoedit index.php
+   
+Lopuksi loin /srv/salt/ polkuu lamp.sls tiedoston, jonne kirjoitin manuaalisesti tehdyt komennot LAMPIN asennusta varten automaatio muotoon. Etsn tekemäni komennot find ja history komentojen avulla.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_03-23-23.png)
+
+Scriptin testausvaihetta varten asensin salt-masterin ja salt-minionin koneelleni. Ajoin lamp.sls tiedoston minionilleni.
+
+    sudo apt install salt-master salt-minion
+    hostname -I
+    sudoedit /etc/salt/minion
+    sudo systemctl restart salt-minion
+    sudo salt-key -A
+    sudo salt '*' test.ping
+    sudo salt '*' state.apply lamp
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_03-24-23.png)
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_03-24-56.png)
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_03-25-21.png)
+
+Testasin lopuksi Apachen, PHP:n ja MariaDB:n toimivuuden.
+
+localhost/~xubuntu
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_04-37-01.png)
+
+    sudo mariadb
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/12/screenshot_2018-12-05_03-25-50.png)
+
+
+
+Lähteet: 
+
+- Karvinen, Tero: Oppitunnit 2006-05-18, Linux tutustuminen -kurssi (www.iki.fi/karvinen/linux_tutustuminen.html)
+http://terokarvinen.com/2018/control-windows-with-salt
+
+Lisennsi:
+
+- Tätä dokumenttia saa kopioida ja muokata GNU General Public License (versio 2 tai uudempi) mukaisesti. http://www.gnu.org/licenses/gpl.html.
+“Pohjana Tero Karvinen 2012: Linux kurssi, http://terokarvinen.com”.
