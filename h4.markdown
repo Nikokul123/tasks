@@ -1,0 +1,129 @@
+## Palvelinten hallinta h4
+
+
+Tämän harjoituksen suoritus aloitettiin 20-11-2018 64-bittisellä Asuksen X541S kannattavalla. Käyttöjärjestelmänä oli Xubuntu 18.04 versio.
+
+
+### a) Salt-orja
+
+Ensiksi asensin salt-minionin käsin.
+
+    sudo apt-get -y install salt-minion
+ 
+Poimin talteen IP-soitteeni.
+
+    hostname -I
+
+KIrjoitin /etc/salt/minion tiedostoon masterin IP-osoitteen ja orjan id:n.
+
+    echo -e 'master:  84.248.115.165\nid: poni'|sudo tee /etc/salt/minion
+
+Uudelleenjäynnistin minionin.
+
+    sudo systemctl restart salt-minion
+    
+Asensin salt-masterin, ja hyväksyin minionin ja masterin välisen avaimen.
+
+    sudo apt install salt-master
+    sudo salt-key -A
+
+Testasin vastaako minion komentooni.
+
+    sudo salt '*' cmd.run hostname
+    
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_14-38-27.png)
+
+
+Näytti toimivan joten purgesin minionin.
+
+    sudo apt purge salt-minion*
+
+Testasin poiston onnistuneisuuden.
+
+    sudo salt '*' cmd.run hostname
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_14-42-43.png)
+
+Poistin minionin avaimen.
+
+    sudo salt-key -d poni
+    
+Loin scripts nimisen kansion jonka sissän tein autominion.sh tiedoston.
+Kopioin tiedostoon edelliset komentoni salt-minionin asennusta varten.
+
+    mkdir scripts
+    history
+    nano autominion.sh
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_14-50-55.png?w=770)
+
+Suortin autominion.sh tiedoston.
+
+    bash autominion.sh
+    
+Hyväksyin minionin ja masterin välisen avaimen.
+
+    sudo salt-key -A
+    
+Testasin että scripti asensi minionin onnistuneesti.
+
+    sudo salt '*' cmd.run hostname
+    
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_14-55-15.png?w=770)
+
+
+### c) Vagrant
+
+
+Asensin Vagrantin ja virtualboxin.
+
+    sudo apt-get install vagrant virtualbox
+    
+Valitsin asennettavaksi virtualboksiksi suositun debianin.
+https://app.vagrantup.com/debian/boxes/jessie64
+
+    vagrant init debian/jessie64
+
+Yritin asentaa levykuvan ja laittaa virtualboxin päälle.
+
+    vagrant up
+    
+Sain virheilmoituksen.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_15-23-37.png)
+
+Asensin ilmoituksessa pyydetyt tiedostot.
+
+    sudo apt install virtualbox-dkms
+    sudo apt install linux-header-generic
+    
+Yritin uudestaan vagrant up komentoa, mutta sama virheilmoitus tupsahti uudelleen.
+
+![](https://nikokulmanen319121420.files.wordpress.com/2018/11/screenshot_2018-11-20_15-25-28.png)
+
+Yritin googlettamalla löytää apua, mutta mitään toimivaa ohjetta en ongelmaan löytänyt.
+
+## Jälkimietteet
+
+Yritin myöhemmin asentaa virtualboxin alusta uudeelleen ja bongasin asennuskoodista seuraavan virheilmoituksen:
+
+    Failed to start LSB: VirtualBox Linux kernel module.
+    
+Yritin googlettaa oheista ilmoitusta, mutta en löytänyt ratkaisua virheeseen.
+
+
+Lähteet:
+
+- https://app.vagrantup.com/debian/boxes/jessie64
+
+- Karvinen, Tero: Oppitunnit 2006-05-18, Linux tutustuminen -kurssi (www.iki.fi/karvinen/linux_tutustuminen.html)
+
+Lisenssi:
+
+- Tätä dokumenttia saa kopioida ja muokata GNU General Public License (versio 2 tai uudempi) mukaisesti. http://www.gnu.org/licenses/gpl.html.
+
+- “Pohjana Tero Karvinen 2012: Linux kurssi, http://terokarvinen.com”.
+
+
+Niko Kulmanen
